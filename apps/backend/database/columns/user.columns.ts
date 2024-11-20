@@ -31,13 +31,18 @@ export const userColumns: IColumn[] = [
   {
     name: 'status',
     type: ColumnTypes.enum,
-    enum: DATABASE_ENUMS.userStatus,
+    enum: DATABASE_ENUMS.userStatuses,
     default: "'PENDING'",
     isNullable: false,
   },
   {
     name: 'date_of_birth',
     type: ColumnTypes.date,
+    isNullable: true,
+  },
+  {
+    name: 'supplier_id',
+    type: ColumnTypes.uuid,
     isNullable: true,
   },
 ];
