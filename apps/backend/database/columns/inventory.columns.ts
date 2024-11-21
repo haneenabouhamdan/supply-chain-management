@@ -3,7 +3,7 @@ import { ColumnTypes, IColumn } from '../type';
 export const inventoryColumns: IColumn[] = [
   {
     name: 'product_id',
-    type: ColumnTypes.int,
+    type: ColumnTypes.uuid,
     isNullable: false,
   },
   {

@@ -7,7 +7,7 @@ import {
 import { logger } from './common/middlewares';
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { middleware as expressCtx } from 'express-ctx';
-import { RolesPermissionsService } from './components/user/services';
+// import { RolesPermissionsService } from './components/user/services';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(
@@ -28,8 +28,8 @@ async function bootstrap() {
     }),
   );
 
-  const rolesPermissionsService = app.get(RolesPermissionsService);
-  await rolesPermissionsService.createDefaultRolesPermissions();
+  // const rolesPermissionsService = app.get(RolesPermissionsService);
+  // await rolesPermissionsService.createDefaultRolesPermissions();
 
   app.use(expressCtx);
 
@@ -41,6 +41,6 @@ async function bootstrap() {
 
   await app.listen(3000);
 
-  console.info(`🚀🚀🚀 devSpot app started 🚀🚀🚀`);
+  console.info(`🚀🚀🚀 app started 🚀🚀🚀`);
 }
 bootstrap();

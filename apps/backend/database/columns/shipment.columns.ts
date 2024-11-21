@@ -26,7 +26,7 @@ export const shipmentColumns: IColumn[] = [
   },
   {
     name: 'driver_id',
-    type: ColumnTypes.int,
+    type: ColumnTypes.uuid,
     isNullable: true,
   },
 ];

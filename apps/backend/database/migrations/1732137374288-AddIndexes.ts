@@ -39,12 +39,6 @@ export class AddIndexes1732137374288 implements MigrationInterface {
           ON ${TableNames.orderItems} (order_id, product_id);
         `);
 
-    // Add index on `order_id` in Shipments table
-    await queryRunner.query(`
-          CREATE INDEX IDX_SHIPMENTS_ORDER_ID
-          ON ${TableNames.shipments} (order_id);
-        `);
-
     // Add index on `driver_id` in Shipments table
     await queryRunner.query(`
           CREATE INDEX IDX_SHIPMENTS_DRIVER_ID
@@ -81,11 +75,6 @@ export class AddIndexes1732137374288 implements MigrationInterface {
     // Drop composite index on `order_id` and `product_id` in Order Items table
     await queryRunner.query(`
           DROP INDEX IDX_ORDER_ITEMS_ORDER_PRODUCT;
-        `);
-
-    // Drop index on `order_id` in Shipments table
-    await queryRunner.query(`
-          DROP INDEX IDX_SHIPMENTS_ORDER_ID;
         `);
 
     // Drop index on `driver_id` in Shipments table

@@ -10,14 +10,12 @@ export const orderColumns: IColumn[] = [
     name: 'status',
     type: ColumnTypes.enum,
     enum: DATABASE_ENUMS.orderStatuses,
-    default: "'PENDING'",
     isNullable: false,
   },
   {
     name: 'payment_type',
     type: ColumnTypes.enum,
     enum: DATABASE_ENUMS.paymentStatuses,
-    default: "'PREPAID'",
     isNullable: false,
   },
   {

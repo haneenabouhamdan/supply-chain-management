@@ -3,7 +3,7 @@ import { ColumnTypes, IColumn } from '../type';
 export const userTokenColumns: IColumn[] = [
   {
     name: 'user_id',
-    type: ColumnTypes.int,
+    type: ColumnTypes.uuid,
     isNullable: false,
   },
   {
