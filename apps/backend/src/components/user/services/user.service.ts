@@ -113,12 +113,12 @@ export class UserService {
     });
 
     if (existingToken) {
-      existingToken.token = token;
+      existingToken.refreshToken = token;
       return this.userTokenRepository.save(existingToken);
     } else {
       const newUserToken = this.userTokenRepository.create({
         userId: user.id,
-        token,
+        refreshToken: token,
       });
       return this.userTokenRepository.save(newUserToken);
     }

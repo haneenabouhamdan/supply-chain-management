@@ -1,9 +1,14 @@
 export enum DefaultRoles {
   SUPERADMIN = 'SuperAdmin',
   ADMIN = 'Admin',
-  MENTOR = 'Mentor',
-  MEMBER = 'Member',
+  DISPATCHER = 'Dispatcher',
+  DRIVER = 'Driver',
+  ACCOUNT_MANAGER = 'AccountManager',
+  CUSTOMER = 'Customer',
+  SUPPLIER = 'Supplier',
+  EMPLOYEE = 'Employee',
 }
+
 export enum Permissions {
   CREATE_MESSAGE = 'create-messages',
   DELETE_MESSAGE = 'delete-message',

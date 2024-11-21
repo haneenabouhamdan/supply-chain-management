@@ -98,10 +98,6 @@ export class RolesPermissionsService {
         name: DefaultRoles.ADMIN,
         permissions: allPermissions,
       },
-      {
-        name: DefaultRoles.MEMBER,
-        permissions: allPermissions.filter((p) => p.name === 'view-channel'),
-      },
     ];
 
     for (const roleData of defaultRoles) {

@@ -10,7 +10,6 @@ import {
   UserTokenRepository,
 } from './repositories';
 // import { UserCache } from './cache';
-import { UserChannelsRepository } from '../channel';
 import { RoleFilter, UserFilter } from './filters';
 import { RolesPermissionsService } from './services';
 
@@ -22,7 +21,6 @@ import { RolesPermissionsService } from './services';
     UserRepository,
     RoleRepository,
     // UserCache,
-    UserChannelsRepository,
     UserFilter,
     RoleFilter,
     RolesPermissionsService,

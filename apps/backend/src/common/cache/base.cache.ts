@@ -1,8 +1,12 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { RedisService } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 
 export abstract class BaseCache {
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  private readonly redis: Redis;
+
+  constructor(private readonly redisService: RedisService) {
+    this.redis = this.redisService.getOrNil('default');
+  }
 
   protected async setCache(
     redisKey: string,

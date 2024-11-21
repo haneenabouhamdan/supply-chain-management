@@ -1,3 +1,5 @@
+import { DefaultRoles } from 'src/components/user/enums';
+
 export const DATE_COMPARISON_FUNCTIONS = {
   '>': <T>(first: T, second: T) => first > second,
   '>=': <T>(first: T, second: T) => first >= second,
@@ -20,18 +22,7 @@ export const ROLES_KEY = 'roles';
 export const PERMISSIONS_KEY = 'permissions';
 export const SKIP_AUTH_KEY = 'skipauth';
 
-export enum DefaultRoles {
-  SUPER_ADMIN = 'SUPER_ADMIN',
-  ADMIN = 'ADMIN',
-  DISPATCHER = 'DISPATCHER',
-  DRIVER = 'DRIVER',
-  ACCOUNT_MANAGER = 'ACCOUNT_MANAGER',
-  CUSTOMER = 'CUSTOMER',
-  SUPPLIER = 'SUPPLIER',
-  EMPLOYEE = 'EMPLOYEE',
-}
-
-export const SUPER_ROLES = [DefaultRoles.SUPER_ADMIN, DefaultRoles.ADMIN];
+export const SUPER_ROLES = [DefaultRoles.SUPERADMIN, DefaultRoles.ADMIN];
 
 export const NEST_LOADER_CONTEXT_KEY = 'NEST_LOADER_CONTEXT_KEY';
 
