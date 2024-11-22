@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 // import { Product } from './models/product.entity'; // Import your entities here
 // import { ProductModule } from './controllers/product.module'; // Import your modules here
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: true, // Disable in production
       autoLoadEntities: true,
     }),
+    UserModule,
     // ProductModule, // Add your modules here
   ],
 })

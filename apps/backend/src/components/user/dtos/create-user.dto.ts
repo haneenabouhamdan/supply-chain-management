@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { GraphQLString } from 'graphql';
 import { GraphQLEmailAddress, GraphQLUUID } from 'graphql-scalars';
-import { AccountStatus } from '../enums';
+import { UserStatus } from '../enums';
 
 @InputType()
 export class CreateUserDto {
@@ -46,15 +46,15 @@ export class CreateUserDto {
   @IsOptional()
   permissions?: string[];
 
-  @Field(() => AccountStatus, { nullable: true })
+  @Field(() => UserStatus, { nullable: true })
   @IsOptional()
   @IsString()
-  status?: AccountStatus;
+  status?: UserStatus;
 
   @Field({ nullable: true })
   @IsOptional()
   @IsDateString()
-  dateOfBirth?: string;
+  dateOfBirth?: Date;
 
   @Field({ nullable: true })
   @IsOptional()

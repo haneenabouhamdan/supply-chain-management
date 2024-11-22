@@ -1,5 +1,5 @@
 import { ArgsType, Field, ObjectType } from '@nestjs/graphql';
-import { AccountStatus } from '../enums';
+import { UserStatus } from '../enums';
 import { GraphQLEmailAddress, GraphQLUUID } from 'graphql-scalars';
 import { EntityDTO, FilterArgs } from '../../../common/dtos';
 import {
@@ -21,8 +21,8 @@ export class UserDto extends EntityDTO {
   @Field()
   phoneNumber: string;
 
-  @Field(() => AccountStatus)
-  status: AccountStatus;
+  @Field(() => UserStatus)
+  status: UserStatus;
 
   @Field(() => Date, { nullable: true })
   dateOfBirth: Date;
@@ -47,10 +47,10 @@ export class UserFilterArgs extends FilterArgs {
   phoneNumber?: string;
 
   @IsString()
-  @IsEnum(AccountStatus)
+  @IsEnum(UserStatus)
   @IsOptional()
-  @Field(() => AccountStatus, { nullable: true })
-  status?: AccountStatus;
+  @Field(() => UserStatus, { nullable: true })
+  status?: UserStatus;
 
   @IsArray()
   @IsString({ each: true })

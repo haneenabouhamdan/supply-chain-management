@@ -1,12 +1,12 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { GraphQLString } from 'graphql';
 import { GraphQLEmailAddress } from 'graphql-scalars';
-import { AccountStatus } from 'src/components/user/enums';
+import { UserStatus } from 'src/components/user/enums';
 
 @ObjectType()
 export class AuthUserDto {
   @Field()
-  id: string;
+  id: UUID;
 
   @Field()
   username: string;
@@ -17,8 +17,8 @@ export class AuthUserDto {
   @Field()
   phoneNumber: string;
 
-  @Field(() => AccountStatus)
-  status: AccountStatus;
+  @Field(() => UserStatus)
+  status: UserStatus;
 
   @Field(() => Date, { nullable: true })
   dateOfBirth: Date;
