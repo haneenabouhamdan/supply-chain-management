@@ -2,9 +2,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-// import { Product } from './models/product.entity'; // Import your entities here
-// import { ProductModule } from './controllers/product.module'; // Import your modules here
-import { UserModule } from './user/user.module';
+import {
+  CustomerModule,
+  InventoryModule,
+  OrderModule,
+  ProductModule,
+  SupplierModule,
+  UserModule,
+  OrderItemsModule,
+  ShipmentModule,
+} from './components';
 
 @Module({
   imports: [
@@ -21,7 +28,13 @@ import { UserModule } from './user/user.module';
       autoLoadEntities: true,
     }),
     UserModule,
-    // ProductModule, // Add your modules here
+    SupplierModule,
+    CustomerModule,
+    ProductModule,
+    InventoryModule,
+    OrderModule,
+    OrderItemsModule,
+    ShipmentModule,
   ],
 })
 export class AppModule {}

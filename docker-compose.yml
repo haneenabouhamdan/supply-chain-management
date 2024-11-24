@@ -1,12 +1,11 @@
-version: "3.9"
 services:
   backend:
     build:
-      context: ./packages/backend
+      context: ./apps/backend
     ports:
-      - "5000:5000"
+      - "5001:5001"
     env_file:
-      - ./packages/backend/.env
+      - ./apps/backend/.env
     depends_on:
       - postgres
     networks:
@@ -14,7 +13,7 @@ services:
 
   frontend:
     build:
-      context: ./packages/frontend
+      context: ./apps/frontend
     ports:
       - "3000:80"
     networks:
@@ -25,8 +24,8 @@ services:
     container_name: postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: your_password
+      POSTGRES_USER: supply_chain_user
+      POSTGRES_PASSWORD: StrongP@ssw0rd
       POSTGRES_DB: supply_chain_db
     ports:
       - "5432:5432"
