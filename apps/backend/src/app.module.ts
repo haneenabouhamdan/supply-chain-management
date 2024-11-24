@@ -1,7 +1,8 @@
-// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import {
   CustomerModule,
   InventoryModule,
@@ -12,6 +13,11 @@ import {
   OrderItemsModule,
   ShipmentModule,
 } from './components';
+import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/guards';
+import { AppService } from './app.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -27,6 +33,14 @@ import {
       synchronize: true, // Disable in production
       autoLoadEntities: true,
     }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: true,
+      buildSchemaOptions: {
+        dateScalarMode: 'timestamp',
+      },
+      context: ({ req, res }) => ({ req, res }),
+    }),
     UserModule,
     SupplierModule,
     CustomerModule,
@@ -35,6 +49,16 @@ import {
     OrderModule,
     OrderItemsModule,
     ShipmentModule,
+    AuthModule,
+  ],
+  providers: [
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // },
+    AppService,
+    JwtService,
   ],
 })
 export class AppModule {}

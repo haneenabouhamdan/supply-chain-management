@@ -2,6 +2,11 @@ import { ColumnTypes, DATABASE_ENUMS, IColumn } from '../type';
 
 export const orderColumns: IColumn[] = [
   {
+    name: 'reference',
+    type: ColumnTypes.text,
+    isNullable: false,
+  },
+  {
     name: 'customer_id',
     type: ColumnTypes.uuid,
     isNullable: false,

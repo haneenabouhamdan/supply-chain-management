@@ -11,12 +11,13 @@ import {
 } from './repositories';
 // import { UserCache } from './cache';
 import { RoleFilter, UserFilter } from './filters';
-import { RolesPermissionsService } from './services';
+import { RolesPermissionsService, TokenService } from './services';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, UserToken])],
   providers: [
     UserService,
+    TokenService,
     UserResolver,
     UserRepository,
     RoleRepository,
@@ -27,6 +28,12 @@ import { RolesPermissionsService } from './services';
     PermisionRepository,
     UserTokenRepository,
   ],
-  exports: [UserService, UserFilter, RolesPermissionsService],
+  exports: [
+    UserService,
+    UserFilter,
+    RolesPermissionsService,
+    TokenService,
+    UserTokenRepository,
+  ],
 })
 export class UserModule {}

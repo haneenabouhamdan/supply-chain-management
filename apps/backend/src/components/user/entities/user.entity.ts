@@ -12,10 +12,6 @@ export class User extends AbstractEntity {
 
   @Column() password: string;
 
-  @Column({ nullable: true }) bio: string;
-
-  @Column({ nullable: true }) jobTitle: string;
-
   @Column({ nullable: true }) profilePicture: string;
 
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })

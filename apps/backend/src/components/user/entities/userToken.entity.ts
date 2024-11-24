@@ -1,7 +1,7 @@
 import { AbstractEntity } from '../../../common/entities';
 import { Column, Entity } from 'typeorm';
 
-@Entity('user_tokens')
+@Entity('tokens')
 export class UserToken extends AbstractEntity {
   @Column() refreshToken: string;
 

@@ -1,5 +1,6 @@
 import { Table } from 'typeorm';
 import { IColumn, ColumnTypes } from './type';
+import { v4 as uuidv4 } from 'uuid';
 
 export const defaultTableConfig = (tableName: string, columns: IColumn[]) => {
   const preDefinedColumns: IColumn[] = [
@@ -9,7 +10,7 @@ export const defaultTableConfig = (tableName: string, columns: IColumn[]) => {
       isUnique: true,
       isPrimary: true,
       isNullable: false,
-      default: 'uuid_generate_v4()',
+      default: `'${uuidv4()}'`,
     },
     {
       name: 'created_at',

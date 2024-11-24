@@ -41,6 +41,6 @@ async function bootstrap() {
 
   await app.listen(3000);
 
-  console.info(`🚀🚀🚀 app started 🚀🚀🚀`);
+  console.info(`🚀🚀🚀 app started on port ${3000} 🚀🚀🚀`);
 }
 bootstrap();

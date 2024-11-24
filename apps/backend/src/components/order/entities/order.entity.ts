@@ -7,6 +7,10 @@ import { AbstractEntity } from 'src/common/entities';
 @ObjectType()
 @Entity('orders')
 export class Order extends AbstractEntity {
+  @Field(() => String)
+  @Column({ type: 'varchar', nullable: false })
+  reference: string;
+
   @Field(() => GraphQLUUID)
   @Column({ type: 'uuid', nullable: false })
   customerId: UUID;
