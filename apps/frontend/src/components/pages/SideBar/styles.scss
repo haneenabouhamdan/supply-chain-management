@@ -1,0 +1,42 @@
+.sidebar {
+  position: sticky;
+  left: 5px;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #48548c;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-right: 0px;
+  width: 80px;
+}
+
+.nav-container {
+  flex-direction: column;
+  width: 100%;
+
+  &.small {
+    align-items: center;
+  }
+  &.large {
+    align-items: flex-start;
+  }
+}
+
+.user {
+  margin-top: 10px;
+  justify-content: flex-start;
+  width: auto;
+}
+
+.bg-purple {
+  background-color: #48548c;
+}
+
+.white {
+  color: white;
+}
+
+.slightly-bold {
+  font-weight: 500;
+}

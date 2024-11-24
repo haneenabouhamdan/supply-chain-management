@@ -1,0 +1,133 @@
+@use "./Variables";
+@use "sass:color";
+
+.green {
+  color: Variables.$green;
+}
+
+// Color classes
+.pink {
+  color: Variables.$pink;
+}
+
+.purple {
+  color: #48548c;
+}
+
+.orange {
+  color: Variables.$orange;
+}
+
+.blue {
+  color: Variables.$blue;
+}
+
+.black {
+  color: Variables.$black;
+}
+
+.white {
+  color: Variables.$white;
+}
+
+.gray {
+  color: Variables.$gray;
+}
+
+// Light color classes
+.light-pink {
+  color: Variables.$light-pink;
+}
+
+.light-orange {
+  color: Variables.$light-orange;
+}
+
+.light-purple {
+  color: Variables.$light-purple;
+}
+
+.light-blue {
+  color: Variables.$light-blue;
+}
+
+.light-green {
+  color: Variables.$light-green;
+}
+
+.bg-pink {
+  background-color: Variables.$pink;
+  &:hover {
+    background-color: Variables.$light-pink;
+  }
+}
+
+.bg-purple {
+  background-color: #48548c;
+}
+
+.bg-light-purple {
+  background-color: Variables.$light-purple;
+}
+
+.bg-orange {
+  background-color: Variables.$orange;
+}
+
+.bg-blue {
+  background-color: Variables.$blue;
+  &:hover {
+    background-color: Variables.$light-blue;
+  }
+}
+
+.bg-black {
+  background-color: Variables.$black;
+  &:hover {
+    background-color: color.scale(Variables.$black, $lightness: 20%);
+  }
+}
+
+.bg-white {
+  background-color: Variables.$white;
+}
+
+.bg-light-gray {
+  background-color: color.scale(Variables.$gray, $lightness: 30%);
+}
+
+.light-gray {
+  color: color.scale(Variables.$gray, $lightness: 30%);
+}
+
+.bold {
+  font-weight: 500;
+}
+
+.title {
+  font-size: larger;
+}
+
+.normal {
+  font-family: "Noto Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400; /* Normal */
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.slightly-bold {
+  font-family: "Noto Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500; /* Slightly Bold */
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.bold {
+  font-family: "Noto Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700; /* Bold */
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
