@@ -115,6 +115,7 @@ const Dashboard: React.FC<Props> = ({}) => {
     { value: "$3.2M", title: "sales", color: "purple.100" },
   ];
 
+  // Average Height for Charts
   const chartHeight = 350;
 
   return (

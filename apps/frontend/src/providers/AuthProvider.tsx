@@ -1,14 +1,14 @@
-import { type ReactNode, useCallback, useMemo, useState } from 'react';
-import { useHTTPContext } from './GraphQLProvider';
-import { AuthResponse, useGetProfileQuery } from '../resolvers';
-import { AuthContext } from '../contexts/AuthContext';
+import { type ReactNode, useCallback, useMemo, useState } from "react";
+import { useHTTPContext } from "./GraphQLProvider";
+import { AuthResponse, useGetProfileQuery } from "../resolvers";
+import { AuthContext } from "../contexts/AuthContext";
 
 export function AuthenticationProvider({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const { authenticate } = useHTTPContext();
   const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem('token')
+    !!localStorage.getItem("token")
   );
   const {
     getCurrentUser,
@@ -16,24 +16,31 @@ export function AuthenticationProvider({
     loading: isAuthenticating,
   } = useGetProfileQuery();
 
-  const getUser = useCallback(() => {
-    if (isAuthenticated) getCurrentUser();
+  const getUser = useCallback(async () => {
+    if (isAuthenticated) {
+      try {
+        await getCurrentUser();
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+        setIsAuthenticated(false);
+      }
+    }
   }, [getCurrentUser, isAuthenticated]);
 
   const onUserLogin = useCallback(
-    (data: AuthResponse) => {
+    async (data: AuthResponse) => {
       authenticate(data.token);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('uId', String(data.user.id));
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("uId", String(data.user.id));
       setIsAuthenticated(true);
-      getUser();
+      await getUser();
     },
     [authenticate, getUser]
   );
 
   const onUserLogout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('uId');
+    localStorage.removeItem("token");
+    localStorage.removeItem("uId");
     setIsAuthenticated(false);
   }, []);
 

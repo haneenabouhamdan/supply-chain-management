@@ -16,139 +16,168 @@ import {
   MenuItem,
   MenuList,
   IconButton,
+  useDisclosure,
+  Spinner,
+  Text,
 } from "@chakra-ui/react";
 import { FiMoreVertical } from "react-icons/fi";
+import AddProductModal from "./AddProductModal";
+import { useGetInventories } from "../../../resolvers/inventory";
+import { useGetSuppliers } from "../../../resolvers/supplier"; // Import supplier resolver
+import AdjustStockModal from "./AdjustStockModal";
+import { useUpdateProductMutation } from "../../../resolvers";
+import { Inventory } from "../../../resolvers/inventory/inventory.types";
+import WebSocketService from "../../../resolvers/websoket/websocket.service";
 
-interface InventoryItem {
-  product_id: string;
-  location: string;
-  quantity: number;
-  supplier_id: string;
-  sku?: string;
-  name?: string;
-  description?: string;
-  price?: number;
-  threshold?: number;
+// Define the type for the filters
+type Filters = {
+  location?: string;
+  lowStock?: boolean;
   category?: string;
-}
+  supplier?: string;
+};
 
-// Mock inventory data
-const inventoryData = [
-  {
-    product_id: "1",
-    location: "Warehouse A",
-    quantity: 100,
-    supplier_id: "Supplier A",
-  },
-  {
-    product_id: "2",
-    location: "Warehouse B",
-    quantity: 50,
-    supplier_id: "Supplier B",
-  },
-];
-
-// Mock product data
-const productData = [
-  {
-    product_id: "1",
-    sku: "SKU001",
-    name: "Product A",
-    description: "Description for Product A",
-    price: 25.5,
-    threshold: 10,
-    category: "Category A",
-  },
-  {
-    product_id: "2",
-    sku: "SKU002",
-    name: "Product B",
-    description: "Description for Product B",
-    price: 40.0,
-    threshold: 5,
-    category: "Category B",
-  },
-];
+// Predefined list of locations
+const LOCATIONS = ["Warehouse A", "Warehouse B", "Warehouse C"];
+const CATEGORIES = ["Electronics", "Furniture", "Apparel", "Food"];
 
 const InventoryPage = () => {
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [filteredInventory, setFilteredInventory] = useState<InventoryItem[]>(
-    []
-  );
-  const [filter, setFilter] = useState({
-    lowStock: false,
-    category: "",
-    supplier: "",
-  });
+  const [filters, setFilters] = useState<Filters>({});
+  const [inventoriesData, setInventoriesData] = useState<Inventory[]>([]);
+  const { inventories, loading, error } = useGetInventories(filters);
+  const {
+    suppliers,
+    loading: suppliersLoading,
+    error: suppliersError,
+  } = useGetSuppliers(); // Fetch suppliers from backend
+  const {
+    isOpen: isAddOpen,
+    onOpen: onAddOpen,
+    onClose: onAddClose,
+  } = useDisclosure();
+  const {
+    isOpen: isAdjustOpen,
+    onOpen: onAdjustOpen,
+    onClose: onAdjustClose,
+  } = useDisclosure();
 
-  // Fetch and merge inventory and product data
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
+  const { updateProduct } = useUpdateProductMutation();
+
   useEffect(() => {
-    const combinedData = inventoryData.map((inv) => {
-      const product = productData.find(
-        (prod) => prod.product_id === inv.product_id
-      );
-      return {
-        ...inv,
-        ...product, // Merge product details into inventory
-      };
+    setInventoriesData(inventories);
+
+    const handleInventoryUpdates = (updates: Inventory[]) => {
+      setInventoriesData(updates);
+    };
+
+    WebSocketService.onInventoryUpdate(handleInventoryUpdates);
+
+    return () => {
+      WebSocketService.socket.off("inventoryUpdate", handleInventoryUpdates);
+    };
+  }, [inventories]);
+
+  // Update filters only with values set by the user
+  const updateFilter = (
+    key: keyof Filters,
+    value: Filters[keyof Filters] | undefined
+  ) => {
+    setFilters((prev) => {
+      const updatedFilters = { ...prev };
+      if (value !== undefined) {
+        updatedFilters[key] = value;
+      } else {
+        delete updatedFilters[key];
+      }
+      return updatedFilters;
     });
-    setInventory(combinedData);
-    setFilteredInventory(combinedData);
-  }, []);
+  };
 
-  // Handle Filters
-  useEffect(() => {
-    let filtered = [...inventory];
-
-    // Filter by low stock
-    if (filter.lowStock) {
-      filtered = filtered.filter(
-        (item) => item.quantity <= Number(item?.threshold)
-      );
-    }
-
-    // Filter by category
-    if (filter.category) {
-      filtered = filtered.filter((item) => item.category === filter.category);
-    }
-
-    // Filter by supplier
-    if (filter.supplier) {
-      filtered = filtered.filter(
-        (item) => item.supplier_id === filter.supplier
-      );
-    }
-
-    setFilteredInventory(filtered);
-  }, [filter, inventory]);
-
-  // Reset Filters
   const resetFilters = () => {
-    setFilter({
-      lowStock: false,
-      category: "",
-      supplier: "",
-    });
-    setFilteredInventory(inventory);
+    setFilters({});
   };
 
-  const handleAction = (action: string, item: InventoryItem) => {
-    console.log(`${action} clicked for`, item);
+  const handleAction = (action: string, item: any) => {
+    if (action === "Adjust Stock") {
+      setSelectedProduct(item);
+      onAdjustOpen();
+    }
   };
+
+  const handleSaveAdjustments = async (updatedData: any) => {
+    const { inventoryId, ...updatedProduct } = updatedData;
+
+    await updateProduct(updatedProduct.id, updatedProduct);
+    onAdjustClose();
+  };
+
+  if (loading || suppliersLoading) {
+    return (
+      <Box textAlign="center" mt="10">
+        <Spinner size="xl" />
+        <Text mt="4">Loading inventory...</Text>
+      </Box>
+    );
+  }
+
+  if (error || suppliersError) {
+    return (
+      <Box textAlign="center" mt="10">
+        <Text color="red.500">Error fetching data</Text>
+      </Box>
+    );
+  }
+
+  // Filtered inventory data based on the lowStock condition
+  const filteredInventories = filters.lowStock
+    ? inventoriesData
+        .map((inv) => ({
+          ...inv,
+          products: inv.products?.filter(
+            (product) => product.quantity < (product.threshold || 0)
+          ),
+        }))
+        .filter((inv) => inv.products.length > 0) // Remove inventories with no low stock products
+    : inventoriesData;
 
   return (
     <Box padding="6" width={"98%"}>
-      <Heading size="md" mb="8" ml="2" textAlign={"left"}>
-        Inventory
-      </Heading>
+      <Flex justifyContent="space-between" alignItems="center" mb="8">
+        <Heading size="md" textAlign={"left"}>
+          Inventory
+        </Heading>
+        <Button
+          bg="teal.400"
+          color="white"
+          _hover={{ bg: "teal.500" }}
+          onClick={onAddOpen}
+        >
+          Add Product
+        </Button>
+      </Flex>
+
       <Flex mb="6" gap="4" flexWrap="wrap" ml="2">
+        <Select
+          placeholder="Location"
+          width="200px"
+          value={filters.location || ""}
+          onChange={(e) => updateFilter("location", e.target.value)}
+        >
+          {LOCATIONS.map((location) => (
+            <option key={location} value={location}>
+              {location}
+            </option>
+          ))}
+        </Select>
         <Button
           onClick={() =>
-            setFilter((prev) => ({ ...prev, lowStock: !prev.lowStock }))
+            updateFilter("lowStock", !filters.lowStock ? true : undefined)
           }
-          bg={filter.lowStock ? "rgba(255, 99, 132, 1)" : "white"}
+          bg={filters.lowStock ? "rgba(255, 99, 132, 1)" : "white"}
           _hover={{
-            bg: filter.lowStock ? "rgba(255, 99, 132, 0.6)" : "white",
+            bg: filters.lowStock ? "rgba(255, 99, 132, 0.6)" : "white",
           }}
           color="black"
           fontSize={"sm"}
@@ -160,28 +189,29 @@ const InventoryPage = () => {
         <Select
           placeholder="Category"
           width="200px"
-          value={filter.category}
-          onChange={(e) =>
-            setFilter((prev) => ({ ...prev, category: e.target.value }))
-          }
+          value={filters.category || ""}
+          onChange={(e) => updateFilter("category", e.target.value)}
         >
-          <option value="Category A">Category A</option>
-          <option value="Category B">Category B</option>
+          {CATEGORIES.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
         </Select>
 
         <Select
           placeholder="Supplier"
           width="200px"
-          value={filter.supplier}
-          onChange={(e) =>
-            setFilter((prev) => ({ ...prev, supplier: e.target.value }))
-          }
+          value={filters.supplier || ""}
+          onChange={(e) => updateFilter("supplier", e.target.value)}
         >
-          <option value="Supplier A">Supplier A</option>
-          <option value="Supplier B">Supplier B</option>
+          {suppliers.map((supplier) => (
+            <option key={supplier.id} value={supplier.id}>
+              {supplier.name}
+            </option>
+          ))}
         </Select>
 
-        {/* Reset Filters Button */}
         <Button onClick={resetFilters} colorScheme="gray">
           Reset Filters
         </Button>
@@ -210,44 +240,61 @@ const InventoryPage = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {filteredInventory.map((item, index) => (
-              <Tr key={index} fontSize={"14px"} textAlign={"center"}>
-                <Td>{item.name}</Td>
-                <Td>{item.location}</Td>
-                <Td>{item.quantity}</Td>
-                <Td>{item.supplier_id}</Td>
-                <Td>{item.sku}</Td>
-                <Td>${item.price?.toFixed(2)}</Td>
-                <Td>{item.threshold}</Td>
-                <Td>{item.category}</Td>
-                <Td>
-                  <Menu>
-                    <MenuButton
-                      as={IconButton}
-                      aria-label="Options"
-                      icon={<FiMoreVertical />}
-                      variant="outline"
-                    />
-                    <MenuList>
-                      <MenuItem
-                        onClick={() => handleAction("Adjust Stock", item)}
-                      >
-                        Adjust Stock
-                      </MenuItem>
-                      <MenuItem onClick={() => handleAction("Edit", item)}>
-                        Edit
-                      </MenuItem>
-                      <MenuItem onClick={() => handleAction("Delete", item)}>
-                        Delete
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
-                </Td>
-              </Tr>
-            ))}
+            {filteredInventories.flatMap((inv) =>
+              inv.products?.map((product, index) => (
+                <Tr
+                  key={`${inv.location}-${index}`}
+                  fontSize={"14px"}
+                  textAlign={"center"}
+                >
+                  <Td>{product.name}</Td>
+                  <Td>{inv.location}</Td>
+                  <Td>{product.quantity}</Td>
+                  <Td>{inv.supplier?.name}</Td>
+                  <Td>{product.sku}</Td>
+                  <Td>${product.price}</Td>
+                  <Td>{product.threshold}</Td>
+                  <Td>{product.category}</Td>
+                  <Td>
+                    <Menu>
+                      <MenuButton
+                        as={IconButton}
+                        aria-label="Options"
+                        icon={<FiMoreVertical />}
+                        variant="outline"
+                      />
+                      <MenuList>
+                        <MenuItem
+                          onClick={() => handleAction("Adjust Stock", product)}
+                        >
+                          Adjust Stock
+                        </MenuItem>
+                        <MenuItem onClick={() => handleAction("Edit", product)}>
+                          Edit
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => handleAction("Delete", product)}
+                        >
+                          Delete
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
+                  </Td>
+                </Tr>
+              ))
+            )}
           </Tbody>
         </Table>
       </Box>
+      <AddProductModal isOpen={isAddOpen} onClose={onAddClose} />
+      {selectedProduct && (
+        <AdjustStockModal
+          isOpen={isAdjustOpen}
+          onClose={onAdjustClose}
+          product={selectedProduct}
+          onSave={handleSaveAdjustments}
+        />
+      )}
     </Box>
   );
 };

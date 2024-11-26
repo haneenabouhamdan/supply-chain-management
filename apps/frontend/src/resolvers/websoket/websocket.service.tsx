@@ -1,5 +1,12 @@
 import { io, Socket } from "socket.io-client";
-import { NotificationDto } from "../notifications";
+import { Inventory } from "../inventory/inventory.types";
+
+interface InventoryUpdateDto {
+  productId: string;
+  quantity: number;
+  location: string;
+  supplierId: string;
+}
 
 class WebSocketService {
   socket: Socket;
@@ -28,22 +35,22 @@ class WebSocketService {
     });
   }
 
-  joinChannel(channelId: string) {
-    this.socket.emit("joinChannel", { channelId });
+  // Listen for inventory updates
+  onInventoryUpdate(callback: (inventoryUpdates: Inventory[]) => void) {
+    this.socket.on("inventoryUpdate", callback);
   }
 
-  sendNotification(notification: NotificationDto) {
-    this.socket.emit("notify", notification);
+  // Request server to send the latest inventory data
+  requestInventoryUpdate() {
+    this.socket.emit("requestInventoryUpdate");
   }
 
-  onNotification(callback: (notification: NotificationDto) => void) {
-    this.socket.on("notification", callback);
-  }
-
+  // Handle connection events
   onConnect(callback: () => void) {
     this.socket.on("connect", callback);
   }
 
+  // Handle disconnection events
   onDisconnect(callback: () => void) {
     this.socket.on("disconnect", callback);
   }

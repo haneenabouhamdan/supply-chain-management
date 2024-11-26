@@ -13,17 +13,23 @@ import {
 } from "@chakra-ui/react";
 import Sidebar from "./SideBar/Sidebar";
 import "./styles.scss";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMediaQuery } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import Dashboard from "./Dashboard";
 import InventoryPage from "./Inventory/Inventory";
 import OrdersPage from "./Orders/Orders";
 import UsersPage from "./Users/Users";
+import CustomersPage from "./Customers/Customers";
 
 export default function Home() {
-  const [currentView, setCurrentView] = useState("Home");
-  const [loading, setLoading] = useState(false);
+  const [currentView, setCurrentView] = useState<string>(() => {
+    return localStorage.getItem("currentView") || "Home";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("currentView", currentView);
+  }, [currentView]);
 
   const [isMobile] = useMediaQuery("(max-width: 768px)");
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -50,6 +56,7 @@ export default function Home() {
             {currentView === "Inventory" && <InventoryPage />}
             {currentView === "Orders" && <OrdersPage />}
             {currentView === "Users" && <UsersPage />}
+            {currentView === "Customers" && <CustomersPage />}
             {/* {(currentView === 'DMs' || currentView === 'Home') && (
           <DmsList onSelectChannel={onSelectChannel} />
         )}

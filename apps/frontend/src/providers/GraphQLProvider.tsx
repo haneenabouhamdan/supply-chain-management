@@ -4,8 +4,8 @@ import {
   createHttpLink,
   InMemoryCache,
   type NormalizedCacheObject,
-} from '@apollo/client';
-import { onError } from '@apollo/client/link/error';
+} from "@apollo/client";
+import { onError } from "@apollo/client/link/error";
 import {
   createContext,
   type ReactNode,
@@ -13,10 +13,11 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
-} from 'react';
-import { Config } from '../config';
-import { useToast } from '@chakra-ui/react';
+} from "react";
+import { Config } from "../config";
+import { useToast } from "@chakra-ui/react";
 
 interface GraphQLProviderProps {
   children: ReactNode;
@@ -24,31 +25,34 @@ interface GraphQLProviderProps {
 
 interface HTTPContextValues {
   authenticate: (token: string) => void;
-  graphQLClient?: ApolloClient<NormalizedCacheObject>;
+  graphQLClient: ApolloClient<NormalizedCacheObject> | null;
 }
 
-const HTTPContext = createContext<HTTPContextValues>({
-  authenticate: token => {
-    console.group('[HTTPContext]: authenticate');
-    console.log('This method is not implemented yet!');
-    console.log(token);
-    console.groupEnd();
-  },
-  graphQLClient: undefined,
-});
+const HTTPContext = createContext<HTTPContextValues | null>(null);
 
 const getApolloLinks = (toast: ReturnType<typeof useToast>, token?: string) => {
-  const errorLink = onError(({ graphQLErrors }) => {
+  const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
-      graphQLErrors.forEach(({ message }) => {
+      graphQLErrors.forEach(({ message, extensions }) => {
         toast({
-          title: 'Error',
+          title: "Error",
           description: message,
-          status: 'error',
+          status: "error",
           duration: 3000,
-          position: 'top-right',
+          position: "top-right",
           isClosable: true,
         });
+      });
+    }
+
+    if (networkError) {
+      toast({
+        title: "Network Error",
+        description: "A network error occurred. Please try again.",
+        status: "error",
+        duration: 3000,
+        position: "top-right",
+        isClosable: true,
       });
     }
   });
@@ -56,7 +60,7 @@ const getApolloLinks = (toast: ReturnType<typeof useToast>, token?: string) => {
   const httpLink = createHttpLink({
     uri: Config.GRAPHQL_ENDPOINT,
     headers: {
-      Authorization: token ? `Bearer ${token}` : '',
+      Authorization: token ? `Bearer ${token}` : "",
     },
   });
 
@@ -77,33 +81,31 @@ const createGraphQLClient = (
 
 export const GraphQLProvider = ({ children }: GraphQLProviderProps) => {
   const [graphQLClient, setGraphQLClient] =
-    useState<ApolloClient<NormalizedCacheObject>>();
+    useState<ApolloClient<NormalizedCacheObject> | null>(null);
   const toast = useToast();
+  const toastRef = useRef(toast);
 
   useEffect(() => {
-    const token = localStorage.getItem('token') ?? undefined;
-    setGraphQLClient(createGraphQLClient(toast, token));
-  }, [toast]);
+    const token = localStorage.getItem("token") ?? undefined;
+    setGraphQLClient(createGraphQLClient(toastRef.current, token));
+  }, []);
 
-  const authenticate = useCallback(
-    (token: string) => {
-      localStorage.setItem('token', token);
-      setGraphQLClient(() => createGraphQLClient(toast, token));
-    },
-    [toast]
-  );
+  const authenticate = useCallback((token: string) => {
+    localStorage.setItem("token", token);
+    setGraphQLClient(() => createGraphQLClient(toastRef.current, token));
+  }, []);
 
   const httpProviderValue = useMemo(
     () => ({ authenticate, graphQLClient }),
     [authenticate, graphQLClient]
   );
 
-  if (!httpProviderValue.graphQLClient) {
-    return null;
+  if (!graphQLClient) {
+    return <div>Loading GraphQL Client...</div>;
   }
 
   return (
-    <ApolloProvider client={httpProviderValue.graphQLClient}>
+    <ApolloProvider client={graphQLClient}>
       <HTTPContext.Provider value={httpProviderValue}>
         {children}
       </HTTPContext.Provider>
@@ -111,4 +113,10 @@ export const GraphQLProvider = ({ children }: GraphQLProviderProps) => {
   );
 };
 
-export const useHTTPContext = () => useContext(HTTPContext);
+export const useHTTPContext = () => {
+  const context = useContext(HTTPContext);
+  if (!context) {
+    throw new Error("useHTTPContext must be used within a GraphQLProvider");
+  }
+  return context;
+};

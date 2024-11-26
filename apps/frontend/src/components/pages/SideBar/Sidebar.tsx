@@ -13,13 +13,13 @@ import NavItem from "./NavItem";
 import "./styles.scss";
 import { UserProfileModal } from "../../modals";
 import { useGetProfileQuery } from "../../../resolvers";
-// import NotificationPopover from '../../modals/notifications/Notifications.modal';
 import { useAuthContext } from "../../../contexts";
 import { VscSignOut } from "react-icons/vsc";
 import { TbUsers } from "react-icons/tb";
-import { FaRegMap } from "react-icons/fa";
+import { RiRouteLine } from "react-icons/ri";
 import { RiTruckLine } from "react-icons/ri";
 import { FaShop } from "react-icons/fa6";
+import { GrUserNew } from "react-icons/gr";
 
 interface Props {
   setCurrentView: (input: string) => void;
@@ -68,14 +68,7 @@ const Sidebar = (props: Props) => {
             description="This is the description for the dashboard."
             onClick={() => setCurrentView("Home")}
           />
-          {/* <NavItem
-            navSize={navSize}
-            icon={FaRegMap}
-            title="Map"
-            description={""}
-            isActive={currentView === "Map"}
-            onClick={() => setCurrentView("Map")}
-          /> */}
+
           <NavItem
             navSize={navSize}
             icon={FaShop}
@@ -93,6 +86,14 @@ const Sidebar = (props: Props) => {
             isActive={currentView === "Orders"}
             onClick={() => setCurrentView("Orders")}
           />
+          {/* <NavItem
+            navSize={navSize}
+            icon={RiRouteLine}
+            title="Shipments"
+            description={""}
+            isActive={currentView === "Shipments"}
+            onClick={() => setCurrentView("Shipments")}
+          /> */}
           <NavItem
             navSize={navSize}
             icon={TbUsers}
@@ -100,6 +101,15 @@ const Sidebar = (props: Props) => {
             description={""}
             isActive={currentView === "Users"}
             onClick={() => setCurrentView("Users")}
+          />
+
+          <NavItem
+            navSize={navSize}
+            icon={GrUserNew}
+            title="Customers"
+            description={""}
+            isActive={currentView === "Customers"}
+            onClick={() => setCurrentView("Customers")}
           />
           <Stack mt={2} mb={2} zIndex={"2000"}>
             {/* <NotificationPopover
