@@ -1,31 +1,31 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { SupplierService } from './supplier.service';
-import { Supplier } from './entities/supplier.entity';
 import { CreateSupplierInput } from './dto/create-supplier.input';
 import { UpdateSupplierInput } from './dto/update-supplier.input';
+import { SupplierDto } from './dto';
 
-@Resolver(() => Supplier)
+@Resolver(() => SupplierDto)
 export class SupplierResolver {
   constructor(private readonly supplierService: SupplierService) {}
 
-  @Mutation(() => Supplier)
+  @Mutation(() => SupplierDto)
   createSupplier(
     @Args('createSupplierInput') createSupplierInput: CreateSupplierInput,
   ) {
     return this.supplierService.create(createSupplierInput);
   }
 
-  @Query(() => [Supplier], { name: 'supplier' })
+  @Query(() => [SupplierDto], { name: 'suppliers' })
   findAll() {
     return this.supplierService.findAll();
   }
 
-  @Query(() => Supplier, { name: 'supplier' })
+  @Query(() => SupplierDto, { name: 'supplier' })
   findOne(@Args('id') id: UUID) {
     return this.supplierService.findOne(id);
   }
 
-  @Mutation(() => Supplier)
+  @Mutation(() => SupplierDto)
   updateSupplier(
     @Args('updateSupplierInput') updateSupplierInput: UpdateSupplierInput,
   ) {
@@ -35,7 +35,7 @@ export class SupplierResolver {
     );
   }
 
-  @Mutation(() => Supplier)
+  @Mutation(() => SupplierDto)
   removeSupplier(@Args('id') id: UUID) {
     return this.supplierService.remove(id);
   }

@@ -17,7 +17,7 @@ export class Customer extends AbstractEntity {
   @Column({ type: 'varchar', nullable: false })
   phone: string;
 
-  @Field(() => Date)
+  @Field(() => String)
   @Column({ nullable: false })
-  address: Date;
+  address: string;
 }

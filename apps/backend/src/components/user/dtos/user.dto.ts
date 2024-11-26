@@ -31,7 +31,7 @@ export class UserDto extends EntityDTO {
   profilePicture: string;
 
   @Field(() => GraphQLUUID, { nullable: true })
-  supplierId: UUID;
+  supplierId?: UUID;
 }
 
 @ArgsType()

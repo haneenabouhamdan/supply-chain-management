@@ -1,20 +1,16 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Inventory } from './entities/inventory.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateInventoryInput } from './dto/create-inventory.input';
 import { UpdateInventoryInput } from './dto/update-inventory.input';
+import { Inventory } from './entities/inventory.entity';
+import {
+  InventoryFilterArgs,
+  InventoryInsightsDto,
+} from './dto/inventory.input';
+import { InventoryRepository } from './repository';
 
 @Injectable()
 export class InventoryService {
-  constructor(
-    @InjectRepository(Inventory)
-    private readonly inventoryRepository: Repository<Inventory>,
-  ) {}
+  constructor(private readonly inventoryRepository: InventoryRepository) {}
 
   // Create a new inventory record
   async create(createInventoryInput: CreateInventoryInput): Promise<Inventory> {
@@ -22,9 +18,9 @@ export class InventoryService {
     return await this.inventoryRepository.save(inventory);
   }
 
-  // Get all inventory records
-  async findAll(): Promise<Inventory[]> {
-    return await this.inventoryRepository.find();
+  // Get all inventory records with filters
+  async findAll(filters: InventoryFilterArgs): Promise<Inventory[]> {
+    return this.inventoryRepository.getList(filters);
   }
 
   // Get a single inventory record by ID
@@ -56,27 +52,41 @@ export class InventoryService {
     return result.affected === 1;
   }
 
-  async adjustStock(
-    productId: string,
-    adjustmentQuantity: number,
-  ): Promise<Inventory> {
-    const inventory = await this.inventoryRepository.findOneBy({
-      productId,
-    });
-    if (!inventory) throw new NotFoundException('Product not found');
-
-    if (adjustmentQuantity == 0)
-      throw new BadRequestException('Quatity can not be 0');
-
-    return this.update(inventory.id, {
-      ...inventory,
-      quantity: adjustmentQuantity,
-    });
+  // Generate inventory report
+  async getInventoryReport(filters: InventoryFilterArgs): Promise<string> {
+    const inventories = await this.findAll(filters);
+    // Implement report generation logic based on inventories
+    return `Inventory report generated with ${inventories.length} records.`;
   }
 
-  // // Generate inventory report
-  // async getInventoryReport(filters: Record<string, any>): Promise<string> {
-  //   // Use filters to generate a report
-  //   return `Inventory report generated with filters: ${JSON.stringify(filters)}`;
-  // }
+  async getInsights(
+    filters: InventoryFilterArgs,
+  ): Promise<InventoryInsightsDto> {
+    const inventories = await this.findAll(filters);
+
+    const totalInventories = inventories.length;
+    const totalProducts = inventories.reduce(
+      (count, inv) => count + (inv.products?.length || 0),
+      0,
+    );
+    const lowStockProducts = inventories.reduce(
+      (count, inv) =>
+        count +
+        (inv.products?.filter(
+          (product) => product.quantity < (product.threshold || 0),
+        ).length || 0),
+      0,
+    );
+    const distinctSuppliers = new Set(inventories.map((inv) => inv.supplierId))
+      .size;
+    const averageStockPerInventory = totalProducts / (totalInventories || 1);
+
+    return {
+      totalInventories,
+      totalProducts,
+      lowStockProducts,
+      distinctSuppliers,
+      averageStockPerInventory,
+    };
+  }
 }

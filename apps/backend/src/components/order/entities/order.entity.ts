@@ -42,8 +42,7 @@ export class Order extends AbstractEntity {
   @Field(() => Date)
   @Column({
     type: 'timestamp',
-    nullable: false,
-    default: () => 'CURRENT_TIMESTAMP',
+    nullable: true,
   })
   actualDeliveryDate: Date;
 

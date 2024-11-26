@@ -19,8 +19,7 @@ export class CreateCustomerInput {
   @IsNotEmpty()
   phone: string;
 
-  @Field(() => Date)
-  @IsDate()
+  @Field(() => String)
   @IsNotEmpty()
-  address: Date;
+  address: string;
 }

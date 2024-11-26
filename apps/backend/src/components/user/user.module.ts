@@ -34,6 +34,7 @@ import { RolesPermissionsService, TokenService } from './services';
     RolesPermissionsService,
     TokenService,
     UserTokenRepository,
+    UserRepository,
   ],
 })
 export class UserModule {}

@@ -86,16 +86,11 @@ export abstract class BaseRepository<
     };
   }
 
-  async getList(filters: F): Promise<T[] | IPaginatedType<T>> {
-    const { page, perPage } = filters;
+  async getList(filters: F): Promise<T[]> {
     let query = this.createQueryBuilder(this.metadata.tableName);
 
     if (this.filter) {
       query = this.filter.setQuery(query).apply(filters);
-    }
-
-    if (!!page) {
-      return this.paginate({ page, perPage }, query);
     }
 
     return query.getMany();

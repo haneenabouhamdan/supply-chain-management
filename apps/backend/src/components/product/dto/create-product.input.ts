@@ -38,4 +38,9 @@ export class CreateProductInput {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @Field(() => Int)
+  @IsNumber()
+  @Min(0)
+  quantity: number;
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -14,10 +14,11 @@ import {
   ShipmentModule,
 } from './components';
 import { AuthModule } from './auth/auth.module';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './auth/guards';
 import { AppService } from './app.service';
 import { JwtService } from '@nestjs/jwt';
+import { GatewayModule } from './components/gateway';
+import { AppGateway } from './components/gateway/App.gateway';
+import { InventoryService } from './components/inventory/inventory.service';
 
 @Module({
   imports: [
@@ -50,15 +51,8 @@ import { JwtService } from '@nestjs/jwt';
     OrderItemsModule,
     ShipmentModule,
     AuthModule,
+    forwardRef(() => GatewayModule),
   ],
-  providers: [
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: AuthGuard,
-    // },
-    AppService,
-    JwtService,
-  ],
+  providers: [AppService, JwtService],
 })
 export class AppModule {}

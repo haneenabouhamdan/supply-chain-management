@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { OrderItem } from './entities/order-item.entity';
 import { CreateOrderItemInput } from './dto/create-order-item.input';
 import { UpdateOrderItemInput } from './dto/update-order-item.input';
@@ -30,6 +30,16 @@ export class OrderItemService {
       throw new NotFoundException(`OrderItem with ID ${id} not found`);
     }
     return orderItem;
+  }
+
+  async findByOrderId(orderId: UUID): Promise<OrderItem[]> {
+    const orderItems = await this.orderItemRepository.findBy({
+      orderId,
+    });
+    if (!orderItems) {
+      throw new NotFoundException(`OrderItems not found`);
+    }
+    return orderItems;
   }
 
   // Update an order item by ID

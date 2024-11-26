@@ -4,18 +4,81 @@ import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CreateOrderInput } from './dto/create-order.input';
 import { UpdateOrderInput } from './dto/update-order.input';
+import { OrderItem } from '../order-items/entities';
+import { Product } from '../product/entities';
+import { OrderStatus } from './enums';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(OrderItem)
+    private readonly orderItemRepository: Repository<OrderItem>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
   ) {}
 
-  // Create a new order
   async create(createOrderInput: CreateOrderInput): Promise<Order> {
-    const order = this.orderRepository.create(createOrderInput);
-    return await this.orderRepository.save(order);
+    const {
+      customerId,
+      reference,
+      paymentType,
+      paymentAmount,
+      items,
+      supplierId,
+    } = createOrderInput;
+
+    if (!items || items.length === 0) {
+      throw new Error('Order items cannot be empty.');
+    }
+
+    // Create the order
+    const order = this.orderRepository.create({
+      customerId,
+      reference,
+      paymentType,
+      paymentAmount,
+      supplierId,
+      status: OrderStatus.REQUESTED,
+    });
+    const savedOrder = await this.orderRepository.save(order);
+
+    items.map(async (item) => {
+      if (!item.productId || item.quantity <= 0) {
+        throw new Error(
+          `Invalid product ID or quantity for item: ${JSON.stringify(item)}`,
+        );
+      }
+      const product = await this.productRepository.findOneBy({
+        id: item.productId as UUID,
+      });
+      // reduce product quantity
+      await this.productRepository.update(item.productId, {
+        quantity: product.quantity - item.quantity,
+      });
+
+      return this.orderItemRepository.create({
+        orderId: savedOrder.id,
+        productId: item.productId,
+        quantity: item.quantity,
+      });
+    });
+    // Create all order items asynchronously
+    const createdOrderItems = await Promise.all(
+      items.map(async (item) =>
+        this.orderItemRepository.create({
+          orderId: savedOrder.id,
+          productId: item.productId,
+          quantity: item.quantity,
+        }),
+      ),
+    );
+
+    // Save all created order items
+    await this.orderItemRepository.save(createdOrderItems);
+
+    return savedOrder;
   }
 
   // Get all orders

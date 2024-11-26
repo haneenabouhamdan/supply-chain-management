@@ -1,6 +1,15 @@
-import { InputType, Field, Float } from '@nestjs/graphql';
-import { IsUUID, IsEnum, IsNumber, Min, IsOptional } from 'class-validator';
+import { InputType, Field, Float, Int } from '@nestjs/graphql';
+import {
+  IsUUID,
+  IsEnum,
+  IsNumber,
+  Min,
+  IsOptional,
+  ValidateNested,
+  IsInt,
+} from 'class-validator';
 import { OrderStatus, PaymentStatus } from '../enums';
+import { Type } from 'class-transformer';
 
 @InputType()
 export class CreateOrderInput {
@@ -9,8 +18,9 @@ export class CreateOrderInput {
   customerId: string;
 
   @Field(() => OrderStatus)
+  @IsOptional()
   @IsEnum(OrderStatus)
-  status: OrderStatus;
+  status?: OrderStatus;
 
   @Field(() => PaymentStatus)
   @IsEnum(PaymentStatus)
@@ -32,5 +42,26 @@ export class CreateOrderInput {
   @Field({ nullable: true })
   @IsOptional()
   @IsUUID()
-  shipmentId?: string;
+  shipmentId?: UUID;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  reference?: string;
+
+  @Field(() => [CreateItemInput])
+  @ValidateNested({ each: true }) // Validate each item in the array
+  @Type(() => CreateItemInput) // Transform and validate nested items
+  items: CreateItemInput[];
+}
+
+@InputType()
+export class CreateItemInput {
+  @Field()
+  @IsUUID()
+  productId: string; // Ensure `string` is used as GraphQL doesn't natively support UUIDs
+
+  @Field(() => Int)
+  @IsInt()
+  @Min(1)
+  quantity: number; // Ensure quantity is an integer and at least 1
 }
